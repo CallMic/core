@@ -4,8 +4,8 @@ const path = require("path");
 const fs = require('fs');
 
 // Imports the Google Cloud client library
-//const speech = require('@google-cloud/speech').v1p1beta1; // version needed for mp3
-const speech = require('@google-cloud/speech');
+const speech = require('@google-cloud/speech').v1p1beta1; // version needed for mp3
+//const speech = require('@google-cloud/speech');
 
 /******** speech to text function ******* */
 /************************************* */
@@ -17,21 +17,37 @@ async function speech_to_text()
     //const fileName = 'c:/Shaul/Nicola Zannoni ConserveItalia accept.mp3';
     //   const gcsUri = "path to GCS audio file e.g. `gs:/bucket/audio.wav`"
     //const gcsUri = "gs://speech-analytics-bucket-sd/Isagro.mp3"
-    const gcsUri = "gs://speech-analytics-bucket-sd/Isagro.wav"
+    const gcsUri = "gs://speech-analytics-bucket-sd/ConserveItalia.mp3"
+    //const gcsUri = "gs://speech-analytics-bucket-sd/Isagro.wav"
 
-    const config = {
-      //encoding: 'FLAC', //'MP3', //'LINEAR16',
-      //encoding: 'MP3', //'LINEAR16',
+    // for mp3
+    const config = {      
+      encoding: 'MP3',      
+      //sampleRateHertz: 8000,
+      //sampleRateHertz: 16000, // 16k for linear16. must
+      languageCode: 'en-US',
+      //alternativeLanguageCodes: ['es-ES', 'en-US'],
+      //audioChannelCount: 1,  // must be 1 for linear16 wav
+      enableSpeakerDiarization: true,
+      diarizationSpeakerCount: 2,
+      //minSpeakerCount: 2,
+      //maxSpeakerCount: 2,
+      //model: 'phone_call' // cuts call... less words
+      model: 'telephony' // best probably
+      //model: 'latest_long' // gets only a few words
+    };
+
+    // working config for wav.
+    /*const config = {      
       encoding: 'LINEAR16', // wav file is linear16
       sampleRateHertz: 8000,
-      //sampleRateHertz: 16000, // 16k for linear16. must
       languageCode: 'en-US',
       audioChannelCount: 1,  // must be 1 for linear16 wav
       enableSpeakerDiarization: true,
       minSpeakerCount: 2,
       maxSpeakerCount: 2,
       model: 'phone_call',
-    };
+    };*/
 
     //const audio = {
     //   content: fs.readFileSync(fileName).toString('base64'),
