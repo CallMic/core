@@ -4,8 +4,8 @@ const path = require("path");
 const fs = require('fs');
 
 // Imports the Google Cloud client library
-const speech = require('@google-cloud/speech').v1p1beta1; // version needed for mp3
-//const speech = require('@google-cloud/speech');
+//const speech = require('@google-cloud/speech').v1p1beta1; // version needed for mp3
+const speech = require('@google-cloud/speech');
 
 /******** speech to text function ******* */
 /************************************* */
@@ -26,11 +26,11 @@ async function speech_to_text()
       sampleRateHertz: 8000,
       //sampleRateHertz: 16000, // 16k for linear16. must
       languageCode: 'en-US',
-      audioChannelCount: 1  // must be 1 for linear16 wav
-      //enableSpeakerDiarization: true,
-      //minSpeakerCount: 2,
-      //maxSpeakerCount: 2//,
-      //model: 'phone_call',
+      audioChannelCount: 1,  // must be 1 for linear16 wav
+      enableSpeakerDiarization: true,
+      minSpeakerCount: 2,
+      maxSpeakerCount: 2,
+      model: 'phone_call',
     };
 
     //const audio = {
@@ -46,14 +46,18 @@ async function speech_to_text()
       audio: audio
     };
 
-    const [response] = //await client.recognize(request);
-                       await client.longRunningRecognize(request);
+    //const [response] = await client.recognize(request);
+    console.log("starting long running");
+    const [operation] = await client.longRunningRecognize(request);
+    console.log("getting response");
+    const [response] = await operation.promise();
+    //const 
     //results = response.results;
-    console.log(response);
-    console.log(response.results);
+    //console.log(response);
+    console.log(JSON.stringify(response.results));
     const transcription = response.results
       .map(result => result.alternatives[0].transcript)
-      .join('\n');
+      .join(' ');
     console.log(`Transcription: ${transcription}`);
     console.log('Speaker Diarization:');
     const result = response.results[response.results.length - 1];
