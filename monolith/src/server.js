@@ -182,8 +182,12 @@ app.post('/process_audio', upload.single('file'), async (req, res) => {
       var gcsUri = "gs://speech-analytics-bucket-sd/"+fileName;
       console.log(`starting audio analysis of ${gcsUri}`);
       stats = await get_speech_analytics(gcsUri);
-      console.log(stats);
-      res.status(200).send('OK');
+      stats_str = JSON.stringify(stats);
+      console.log(stats_str);
+      res.status(200).send(
+        { ok: "ok", // checked by client to see success.
+        result: "OK", 
+        data: stats_str});
     });
 
     stream.end(file.buffer);

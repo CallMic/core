@@ -33,6 +33,9 @@ const UploadFile = () => {
 
       if (response.ok) {
         console.log('File uploaded successfully');
+        console.log(response);
+        console.log(response.data);
+        console.log(response.body);
       } else {
         console.error('Failed to upload file');
       }
