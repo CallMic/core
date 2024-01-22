@@ -1,9 +1,12 @@
 const express = require("express");
 const path = require("path");
+
 const fs = require('fs');
 
 // Imports the Google Cloud client library
 const speech = require('@google-cloud/speech').v1p1beta1; // version needed for mp3
+//const speech = require('@google-cloud/speech').v2; 
+//const speech = require('@google-cloud/speech');
 
 /******** speech to text function ******* */
 /************************************* */
@@ -11,8 +14,10 @@ async function speech_to_text(gcsUri)
 {  
     // Creates a client for the google API 
     const client = new speech.SpeechClient();
+
     //const fileName = 'c:/Shaul/Nicola Zannoni ConserveItalia accept.mp3';
-    //   const gcsUri = "path to GCS audio file e.g. `gs:/bucket/audio.wav`"    
+    //   const gcsUri = "path to GCS audio file e.g. `gs:/bucket/audio.wav`"
+    //const gcsUri = "gs://speech-analytics-bucket-sd/Isagro.mp3"
     //const gcsUri = "gs://speech-analytics-bucket-sd/ConserveItalia.mp3"
     //const gcsUri = "gs://speech-analytics-bucket-sd/Isagro.wav"
 
@@ -21,12 +26,33 @@ async function speech_to_text(gcsUri)
       encoding: 'LINEAR16',      
       sampleRateHertz: 8000,      
       languageCode: 'en-US',
+      //alternativeLanguageCodes: ['es-ES', 'en-US'],
+      //audioChannelCount: 1,  // must be 1 for linear16 wav
       enableSpeakerDiarization: true,
       //diarizationSpeakerCount: 2,
       minSpeakerCount: 2,
-      maxSpeakerCount: 2,      
-      model: 'video' // I think this is for "long". seems to work well      
+      maxSpeakerCount: 2,
+      //model: 'long' // best probably
+      model: 'video' // I think this is for "long". seems to work well
+      //model: 'phone_call' // cuts call... less words      
+      //model: 'latest_long' // gets only a few words
     };
+
+    // working config for wav.
+    /*const config = {      
+      encoding: 'LINEAR16', // wav file is linear16
+      sampleRateHertz: 8000,
+      languageCode: 'en-US',
+      audioChannelCount: 1,  // must be 1 for linear16 wav
+      enableSpeakerDiarization: true,
+      minSpeakerCount: 2,
+      maxSpeakerCount: 2,
+      model: 'phone_call',
+    };*/
+
+    //const audio = {
+    //   content: fs.readFileSync(fileName).toString('base64'),
+    //};
 
     const audio = {
       uri: gcsUri,
@@ -37,18 +63,37 @@ async function speech_to_text(gcsUri)
       audio: audio
     };
 
-    //console.log("starting long running recognition job");
+    //create recognizer from example
+    //https://console.cloud.google.com/welcome/new?tutorial=speech-to-text--speech-to-text-v2-nodejs&_ga=2.72498261.773729955.1705832781-1375335444.1705829859&_gac=1.191208792.1705830239.Cj0KCQiAnrOtBhDIARIsAFsSe501fEgmKozQKd2FK7G3k72jgk6Hcb-Ai3Tp9qzByZHymUvnyj9bmkcaAhLzEALw_wcB&project=speech-analytics-sd&cloudshell=false
+
+    //const [response] = await client.recognize(request);
+    //console.log("starting long running");
     const [operation] = await client.longRunningRecognize(request);
-    //console.log("getting response after job ends");
+    //console.log("getting response");
     const [response] = await operation.promise();
-    results = response.results;    
-    console.log(response);
-    //console.log(JSON.stringify(response.results));    
+    //const 
+    results = response.results;
+    //console.log(response);
+    console.log(JSON.stringify(response.results));
+    //const transcription = response.results
+//      .map(result => result.alternatives[0].transcript)
+      //.join(' ');
+    //console.log(`Transcription: ${transcription}`);
+    //console.log('Speaker Diarization:');
     const result = response.results[response.results.length - 1];
-    const wordsInfo = result.alternatives[0].words;    
+    const wordsInfo = result.alternatives[0].words;
+    // Note: The transcript within each result is separate and sequential per result.
+    // However, the words list within an alternative includes all the words
+    // from all the results thus far. Thus, to get all the words with speaker
+    // tags, you only have to take the words list from the last result:
+    //wordsInfo.forEach(a =>
+      //console.log(` word: ${a.word}, speakerTag: ${a.speakerTag}`)
+    //);
     return wordsInfo;
 }
 /************************************* */
+
+//console.log(JSON.stringify(response.results));
 
 // update with data for the word entry from the speech
 function set_entry(stats, word, speaker, duration_sec)
@@ -71,60 +116,22 @@ function set_entry(stats, word, speaker, duration_sec)
   speakerMap[word].duration += duration_sec;
 }
 
-
-function get_top_entries(jsonData, sort_by, min_length, max_length) {
-  // Convert the JSON object into an array of key-value pairs
-  const entries = Object.entries(jsonData);
-
-  // Filter out entries with keys shorter than 4 letters
-  const filteredEntries = entries.filter(([key, value]) => 
-    (key.length >= min_length) && (key.length <= max_length));
-
-  // Sort the array based on the "count" property in descending order
-  filteredEntries.sort((a, b) => b[1][sort_by] - a[1][sort_by]);
-
-  // Take the top 10 entries
-  const topEntries = filteredEntries.slice(0, 10);
-  return topEntries;
-}
-
 async function get_speech_analytics(gcsUri)
 {
     var wordsInfo = await speech_to_text(gcsUri);
-    // show the words array, for debugging.
-    //console.log(wordsInfo);  
+    console.log(wordsInfo);  
     speech_stats = {}
     wordsInfo.forEach(a => {      
           word = a.word;
           speaker = a.speakerTag + ""; // make it string
           // I put abs because there seems to be a bug that sometimes startTime
           // is after endTime
-          duration_sec = Math.abs(a.endTime.nanos - a.startTime.nanos) /1000000000; //nanosec to sec
+          duration_sec = abs(a.endTime.nanos - a.startTime.nanos) /1000000000; //nanosec to sec
           set_entry(speech_stats, word, speaker, duration_sec);          
       }      
     );  
-
-    var speech_analytics = {}
-    for (const key of Object.keys(speech_stats))
-    {
-      val = speech_stats[key];    
-      speaker = key;
-      words = val;
-      top_by_count_short = get_top_entries(words, "count", 0, 4);
-      top_by_duration_short = get_top_entries(words, "duration", 0, 4);
-      top_by_count_long = get_top_entries(words, "count", 5, 25);
-      top_by_duration_long = get_top_entries(words, "duration", 5, 25);
-      speech_analytics[speaker] =  // set for specific speaker
-        {
-          top_by_count_short: top_by_count_short,
-          top_by_duration_short: top_by_duration_short,
-          top_by_count_long: top_by_count_long,
-          top_by_duration_long: top_by_duration_long
-        }
-    }
-    
-    console.log(JSON.stringify(speech_analytics, null, 4));    
-    return speech_analytics;
+    console.log(speech_stats);    
+    return speech_stats;  
 }
 
 get_speech_analytics("gs://speech-analytics-bucket-sd/Isagro.wav");
