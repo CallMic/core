@@ -1,6 +1,9 @@
+// server for backend processing of the audio file and getting analytics & insights from it
 const express = require("express");
 const path = require("path");
 const fs = require('fs');
+const multer = require('multer');
+const { Storage } = require('@google-cloud/storage');
 
 // Imports the Google Cloud client library
 const speech = require('@google-cloud/speech').v1p1beta1; // version needed for mp3
@@ -123,18 +126,91 @@ async function get_speech_analytics(gcsUri)
         }
     }
     
-    console.log(JSON.stringify(speech_analytics, null, 4));    
+    // for testing locally
+    //console.log(JSON.stringify(speech_analytics, null, 4));    
     return speech_analytics;
 }
 
+// test locally
 //get_speech_analytics("gs://speech-analytics-bucket-sd/Isagro.wav");
 
+
+/* Server setup ************************************************************** */
 const app = express();
 const port = process.env.PORT || 8080;
+
+// Configure Multer for handling file uploads
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+// Replace 'GCP_PROJECT_ID' and 'YOUR_GCS_BUCKET_NAME' with your GCP project ID and GCS bucket name
+const storageClient = new Storage({ projectId: 'speech-analytics-sd' });
+const bucket = storageClient.bucket('speech-analytics-bucket-sd');
+
+app.post('/process_audio', upload.single('file'), async (req, res) => {
+  try {
+    const file = req.file;
+    const email = req.body.email;
+    console.log(`Processing audio. email is: ${email} file length is ${file.length}`);
+
+    if (!file || !email) {
+      console.error('Both file and email are required');
+      res.status(400).send('Bad Request');
+      return;
+    }
+
+    // Generate a unique filename
+    const fileName = `${Date.now()}_${path.basename(file.originalname)}`;
+
+    console.log(`uploading file to ${fileName}`)
+
+    // Upload the file to GCS
+    const fileUpload = bucket.file(fileName);
+    const stream = fileUpload.createWriteStream({
+      metadata: {
+        contentType: file.mimetype,
+      },
+    });
+
+    stream.on('error', (err) => {
+      console.error('Error uploading audio to GCS:', err);
+      res.status(500).send('Internal Server Error on upload to GCS');
+    });
+
+    stream.on('finish', async () => {
+      console.log('Audio File uploaded to GCS successfully');
+      var gcsUri = "gs://speech-analytics-bucket-sd/"+fileName;
+      console.log(`starting audio analysis of ${gcsUri}`);
+      stats = await get_speech_analytics(gcsUri);
+      console.log(stats);
+      res.status(200).send('OK');
+    });
+
+    stream.end(file.buffer);
+  } catch (error) {
+    console.error('Error handling file upload:', error);
+    res.status(500).send('Internal Server Error in file upload');
+  }
+});
 
 //Serve website
 app.use(express.static(path.join(__dirname, "..", "public")));
 
+//Client side routing fix on page refresh or direct browsing to non-root directory
+app.get("/*", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "public", "index.html"), (err) => {
+    if (err) {
+      res.status(500).send(err);
+    }
+  });
+});
+
+//Start the server
+app.listen(port, () => console.log(`CallMic listening on port ${port}!`));
+
+/*************************************************************** */
+
+// unused code
 //Get all products
 //app.get("/service/products", (req, res) => res.json(products));
 
@@ -150,15 +226,3 @@ app.use(express.static(path.join(__dirname, "..", "public")));
 //app.get("/service/orders/:id", (req, res) =>
 //  res.json(orders.find((order) => order.id === req.params.id))
 //);
-
-//Client side routing fix on page refresh or direct browsing to non-root directory
-app.get("/*", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "public", "index.html"), (err) => {
-    if (err) {
-      res.status(500).send(err);
-    }
-  });
-});
-
-//Start the server
-app.listen(port, () => console.log(`CallMic listening on port ${port}!`));
