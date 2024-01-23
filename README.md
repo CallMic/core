@@ -1,8 +1,10 @@
-# CallMic speech-to-analytics webapp
+# CallMic conversational analytics webapp
 
 ## Introduction
 
-### CallMic is a website where you can upload a voice file and get analytics regarding the usage of words, phrases, sentiment (TBD) in the file. The code splits the file to two speakers based on their voice. It provides analytics for both of the speakers. Utilizes tools from GCP - Google Cloud Platform.
+CallMic is a website in which you can upload a voice file and get conversational analytics regarding the usage of words, phrases, and sentiment (TBD) in the file. 
+
+The code splits the file to two speakers based on their voice. It provides analytics for both of the speakers. Utilizes tools from GCP - Google Cloud Platform.
 
 ## Google Cloud Tools in Use:
 
@@ -14,24 +16,24 @@
 
 - Google Speech-to-Text API - used for converting the audio file to text, with extra data
 
-### Project architecture
+## Project architecture
 
 This is a simple & standard architecture:
 
-#### ReactJS client:
+### ReactJS client:
 - utilizing Material-UI for the UI components (Google-like UI) and Nivo Charts (supports server-side rendering) for charting the results.
-#### NodeJS server:
+### NodeJS server:
 - Audio files and results are saved to object storage (on GCP)
 - Simple REST API for uploading the file and receiving the results
 
-### TODO
+## TODO
 
 - Add a summary of the call using the OpenAI ChatGPT API or even Google AI Summarization (also based on ChatGPT)
 - Add more complex algorithm flow to analyze the call text - can think of many ideas
 
 ## Try it online now
 
-https://callmic.com
+https://callmic.com (currently offline, ping me to get it up)
 
 ## Installation & Setup
 
@@ -75,33 +77,6 @@ To run the Docker image, execute the following commands
 docker run --rm -p 8080:8080 monolith:1.0.0
 ```
 
-## Microservices
-
-### Docker - Microservices
-
-### To create a Docker image for the microservices, you will have to create a Docker image for each service. Execute the following commands for each folder under the microservices folder
-
-To run the Docker image, execute the following commands
-
-```bash
-docker run -d --rm -p 8080:8080 monolith:1.0.0
-```
-
-#### To stop the containers, you will need to find the CONTAINER ID for each and stop them individually. See the steps below
-
-```bash
-docker ps -a
-
-CONTAINER ID        IMAGE                        COMMAND                CREATED
-4c01db0b339c        frontend:1.0.0               bash                   17 seconds ago
-d7886598dbe2        orders:1.0.0                 bash                   17 seconds ago
-d85756f57265        products:1.0.0               bash                   17 seconds ago
-
-docker stop 4c01db0b339c
-docker stop d7886598dbe2
-docker stop d85756f57265
-```
-
 ## React App
 
 ### The react-app folder contains a React application created from `create-react-app`. You can modify this fronted, but afterwards, you will need to build and move the static files to the monolith and microservices project. You can do this by running the standard create-react-app build command below
@@ -111,3 +86,9 @@ npm run build
 ```
 
 #### This will run the build script to create the static files two times. The first will build with relative URLs and copy the static files to the monolith/public folder. The second run will build with the standard microservices URLs and copy the static files to the microservices/src/frontend/public folder
+
+## Start server
+
+#### Type this command in the /monolith directory:
+
+npm start
