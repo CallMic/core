@@ -1,6 +1,7 @@
 import React from "react";
 import UploadFile from "../../components/UploadFile";
 import { Box, Paper, Typography } from "@mui/material";
+import WordFrequencyChart from "../../components/WordFrequencyChart";
 
 export default function Home() {
   return (
@@ -16,7 +17,7 @@ export default function Home() {
         <Typography variant="h5">Just upload your call audio file and instantly receive detailed analytics.</Typography>
         <br />
         <Typography variant="body1">
-          Learn which words and phrases you use a lot, which you don't, and improve your sales calls, interviews, or whatever it is.
+          Learn which words and phrases you use a lot, which you don't, and improve your sales calls/interviews.
         </Typography>
       </Paper>
       
@@ -28,7 +29,7 @@ export default function Home() {
           padding: (theme) => theme.spacing(3, 5),
         }}
       >
-      <UploadFile></UploadFile>
+      <UploadFile></UploadFile>      
       </Paper>
     </Box>
   );
