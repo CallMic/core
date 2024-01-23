@@ -65,6 +65,7 @@ const UploadFile = () => {
           count
         }));
         console.log("parsed input to ", chartData);
+        make chartdata good as parameter to the chart obj
         setChartData(chartData);
         console.log('Plotted graph.');
       } else {
@@ -202,11 +203,9 @@ const UploadFile = () => {
           {loading ? 'Submitting...' : 'Submit'}
         </button>
       </form>      
-      <WordFrequencyChart data={data}></WordFrequencyChart>
+      {chartData && <WordFrequencyChart data={data}></WordFrequencyChart>}
     </div>
   );
 };
-
-/*{chartData && <WordFrequencyChart data={chartData} />} */
 
 export default UploadFile;

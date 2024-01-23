@@ -2,14 +2,43 @@
 
 ## Introduction
 
-### A website where you can upload a voice file and get analytics regarding the usage of words, phrases, sentiment in the file. Splits file to two speakers based on voice. Provided analytics for both.
+### CallMic is a website where you can upload a voice file and get analytics regarding the usage of words, phrases, sentiment (TBD) in the file. The code splits the file to two speakers based on their voice. It provides analytics for both of the speakers. Utilizes tools from GCP - Google Cloud Platform.
 
-## Setup
+## Google Cloud Tools in Use:
+
+### This project makes use of the following cloud tools:
+
+- Google Cloud Run - to run server in scalable Kubernetes containers, pay-as-you-go model
+
+- Google Cloud Storage - Object storage to store the audio files and analysis results
+
+- Google Speech-to-Text API - used for converting the audio file to text, with extra data
+
+### Project architecture
+
+This is a simple & standard architecture:
+
+#### ReactJS client:
+- utilizing Material-UI for the UI components (Google-like UI) and Nivo Charts (supports server-side rendering) for charting the results.
+#### NodeJS server:
+- Audio files and results are saved to object storage (on GCP)
+- Simple REST API for uploading the file and receiving the results
+
+### TODO
+
+- Add a summary of the call using the OpenAI ChatGPT API or even Google AI Summarization (also based on ChatGPT)
+- Add more complex algorithm flow to analyze the call text - can think of many ideas
+
+## Try it online now
+
+https://callmic.com
+
+## Installation & Setup
 
 ### **NOTE:** Make sure you have a newer version of NodeJS (16.13.0) or newer (in Cloud Shell you can run `nvm install --lts`)
 
 ```bash
-git clone https://github.com/daonsh/callmic
+git clone https://github.com/CallMic/CallMic-Opensource
 cd monolith-to-microservices
 ./setup.sh
 ```
@@ -48,44 +77,14 @@ docker run --rm -p 8080:8080 monolith:1.0.0
 
 ## Microservices
 
-### To run the microservices project use the following commands from the top level directory
-
-```bash
-cd microservices
-npm start
-```
-
-You should see output similar to the following
-
-```text
-[0] Frontend microservice listening on port 8080!
-[2] Orders microservice listening on port 8081!
-[1] Products microservice listening on port 8082!
-```
-
-### That's it! You now have a perfectly functioning set of microservices running on your machine
-
 ### Docker - Microservices
 
 ### To create a Docker image for the microservices, you will have to create a Docker image for each service. Execute the following commands for each folder under the microservices folder
-
-```bash
-cd microservices/src/frontend
-docker build -t frontend:1.0.0 .
-
-cd ../products
-docker build -t products:1.0.0 .
-
-cd ../orders
-docker build -t orders:1.0.0 .
-```
 
 To run the Docker image, execute the following commands
 
 ```bash
 docker run -d --rm -p 8080:8080 monolith:1.0.0
-docker run -d --rm -p 8081:8081 orders:1.0.0
-docker run -d --rm -p 8082:8082 products:1.0.0
 ```
 
 #### To stop the containers, you will need to find the CONTAINER ID for each and stop them individually. See the steps below

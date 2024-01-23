@@ -1,4 +1,12 @@
-// server for backend processing of the audio file and getting analytics & insights from it
+
+// NodeJS server for backend processing of the audio file.
+
+// This server provides one REST API for receiving the audio file and 
+// returns various statistics about it.
+// It analyzes the file using GCP Speech-to-Text API and then 
+// performs some manipulations on the output, to make it ready to be 
+// visualized in the client.
+
 const express = require("express");
 const path = require("path");
 const fs = require('fs');
@@ -14,21 +22,17 @@ async function speech_to_text(gcsUri)
 {  
     // Creates a client for the google API 
     const client = new speech.SpeechClient();
-    //const fileName = 'c:/Shaul/Nicola Zannoni ConserveItalia accept.mp3';
-    //   const gcsUri = "path to GCS audio file e.g. `gs:/bucket/audio.wav`"    
-    //const gcsUri = "gs://speech-analytics-bucket-sd/ConserveItalia.mp3"
-    //const gcsUri = "gs://speech-analytics-bucket-sd/Isagro.wav"
-
+    
     // for mp3
     const config = {      
       encoding: 'LINEAR16',      
       sampleRateHertz: 8000,      
       languageCode: 'en-US',
-      enableSpeakerDiarization: true,
-      //diarizationSpeakerCount: 2,
+      enableSpeakerDiarization: true, // diarization means it will split it
+          // to two(or more) channels - separate between speakers.
       minSpeakerCount: 2,
       maxSpeakerCount: 2,      
-      model: 'video' // I think this is for "long". seems to work well      
+      model: 'video' // this is for "long" input. seems to work well      
     };
 
     const audio = {
@@ -53,10 +57,14 @@ async function speech_to_text(gcsUri)
 }
 /************************************* */
 
-// update with data for the word entry from the speech
+// receives a word from the transcribed text with its
+// duration, and adds it to the stats map to 
+// count the occurrences of this word and its total 
+// audible duration. for visualization.
 function set_entry(stats, word, speaker, duration_sec)
 {
-  // make sure we have speaker map
+  // make sure we have speaker map - one for each 
+  // speaker (usually 2 speakers in a phone call)
   if (!stats.hasOwnProperty(speaker))
     stats[speaker] = {}
 
@@ -70,16 +78,18 @@ function set_entry(stats, word, speaker, duration_sec)
     }
   }
 
+  // increase count of word appearance and total duration.
   speakerMap[word].count++;
   speakerMap[word].duration += duration_sec;
 }
 
-
+// sort word appearance by count or duration, and 
+// return top 10 words to be visualized in client.
 function get_top_entries(jsonData, sort_by, min_length, max_length) {
   // Convert the JSON object into an array of key-value pairs
   const entries = Object.entries(jsonData);
 
-  // Filter out entries with keys shorter than 4 letters
+  // Filter out entries with keys too long/short based on params
   const filteredEntries = entries.filter(([key, value]) => 
     (key.length >= min_length) && (key.length <= max_length));
 
@@ -91,6 +101,9 @@ function get_top_entries(jsonData, sort_by, min_length, max_length) {
   return topEntries;
 }
 
+// does it all - start from Google Cloud URI to the
+// bucket in the file, returns comprehensive statistics
+// in a JSON.
 async function get_speech_analytics(gcsUri)
 {
     var wordsInfo = await speech_to_text(gcsUri);
@@ -107,6 +120,7 @@ async function get_speech_analytics(gcsUri)
       }      
     );  
 
+    // fill the map of the statistical results.
     var speech_analytics = {}
     for (const key of Object.keys(speech_stats))
     {
@@ -131,10 +145,6 @@ async function get_speech_analytics(gcsUri)
     return speech_analytics;
 }
 
-// test locally
-//get_speech_analytics("gs://speech-analytics-bucket-sd/Isagro.wav");
-
-
 /* Server setup ************************************************************** */
 const app = express();
 const port = process.env.PORT || 8080;
@@ -147,6 +157,10 @@ const upload = multer({ storage: storage });
 const storageClient = new Storage({ projectId: 'speech-analytics-sd' });
 const bucket = storageClient.bucket('speech-analytics-bucket-sd');
 
+
+/* REST API ************************************************************** */
+// Main REST API here - gets file data and email, and returns all the 
+// statistics about the file. also sends more data by email.
 app.post('/process_audio', upload.single('file'), async (req, res) => {
   try {
     const file = req.file;
@@ -183,11 +197,17 @@ app.post('/process_audio', upload.single('file'), async (req, res) => {
       console.log(`starting audio analysis of ${gcsUri}`);
       stats = await get_speech_analytics(gcsUri);
       stats_str = JSON.stringify(stats);
+      console.log("Stats string:")
       console.log(stats_str);
-      res.status(200).send(
-        { ok: "ok", // checked by client to see success.
-        result: "OK", 
-        data: stats_str});
+      console.log("Sending result to response")
+      
+      const jsonResponse = {
+        message: 'File uploaded successfully',
+        email: email,
+        stats: stats_str
+      };
+
+      res.status(200).json(jsonResponse);
     });
 
     stream.end(file.buffer);
@@ -197,7 +217,7 @@ app.post('/process_audio', upload.single('file'), async (req, res) => {
   }
 });
 
-//Serve website
+//Serve website - including the react frontend, everything in public.
 app.use(express.static(path.join(__dirname, "..", "public")));
 
 //Client side routing fix on page refresh or direct browsing to non-root directory
@@ -213,20 +233,3 @@ app.get("/*", (req, res) => {
 app.listen(port, () => console.log(`CallMic listening on port ${port}!`));
 
 /*************************************************************** */
-
-// unused code
-//Get all products
-//app.get("/service/products", (req, res) => res.json(products));
-
-//Get products by ID
-//app.get("/service/products/:id", (req, res) =>
-//  res.json(products.find((product) => product.id === req.params.id))
-//);
-
-//Get all orders
-//app.get("/service/orders", (req, res) => res.json(orders));
-
-//Get orders by ID
-//app.get("/service/orders/:id", (req, res) =>
-//  res.json(orders.find((order) => order.id === req.params.id))
-//);

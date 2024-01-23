@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@mui/material": "^5.15.6",
+    "@mui/x-charts": "^6.19.1",
+    "chart.js": "^4.4.1",
+    "react-chartjs-2": "^5.2.0"
+  }
+}
