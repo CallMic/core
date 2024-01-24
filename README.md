@@ -46,12 +46,8 @@ https://callmic.com (currently offline, ping me to get it online)
 
 ## Some examples
 
-Bill Gates interviewed Sam Altman on his podcast - let's see which words they used.
+Using an example phone conversation, let's see the results.
 
-
-
-Episode of Bill Gates interviewing Sam Altman ("source" for the visualization):
-https://podcasts.google.com/feed/aHR0cHM6Ly9mZWVkLnVuY29uZnVzZW1lLmNvbS8/episode/cHJ4XzQzODNfYTk2YjY5NTctMmNlZS00MThmLWE3M2MtZTFiZGQ4NDVhM2Ux?sa=X&ved=0CAQQ8qgGahgKEwig7saP6PWDAxUAAAAAHQAAAAAQxxA
 
 ## Installation & Setup
 
