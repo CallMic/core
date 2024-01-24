@@ -1,5 +1,7 @@
 # CallMic - conversational analytics
 
+Author: Shaul Daon - https://github.com/daonsh
+
 ## Introduction
 
 CallMic is a website in which you can upload a voice file and get conversational analytics regarding the usage of words, phrases, and sentiment (TBD) in the file. 
