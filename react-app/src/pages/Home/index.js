@@ -14,7 +14,7 @@ export default function Home() {
           padding: (theme) => theme.spacing(3, 5),          
         }}
       >
-        <Typography variant="h5">Just upload your call audio file and instantly receive detailed analytics.</Typography>
+        <Typography variant="h5">Upload call audio &rArr; receive detailed analytics</Typography>
         <br />
         <Typography variant="body1">
           Learn which words and phrases you use a lot, which you don't, and improve your sales calls/interviews.

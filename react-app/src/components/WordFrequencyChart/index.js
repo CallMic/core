@@ -10,18 +10,11 @@ import { ResponsiveBar } from '@nivo/bar'
 // no chart will be rendered.
 // website examples showcase many properties,
 // you'll often use just a few of them.
-const MyResponsiveBar = ({ data /* see data tab */ }) => (
+const MyResponsiveBar = ({ data }) => (
     <ResponsiveBar
-        data={data}
-        keys={[
-            'hot dog',
-            'burger',
-            'sandwich',
-            'kebab',
-            'fries',
-            'donut'
-        ]}
-        indexBy="country"
+        data={data.plot_data}
+        keys={data.plot_keys}
+        indexBy="word"
         margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
         padding={0.3}
         valueScale={{ type: 'linear' }}
@@ -50,13 +43,13 @@ const MyResponsiveBar = ({ data /* see data tab */ }) => (
         fill={[
             {
                 match: {
-                    id: 'fries'
+                    id: 'duration'
                 },
                 id: 'dots'
             },
             {
                 match: {
-                    id: 'sandwich'
+                    id: 'count'
                 },
                 id: 'lines'
             }
@@ -76,7 +69,7 @@ const MyResponsiveBar = ({ data /* see data tab */ }) => (
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,
-            legend: 'country',
+            legend: 'word',
             legendPosition: 'middle',
             legendOffset: 32,
             truncateTickAt: 0
@@ -85,7 +78,7 @@ const MyResponsiveBar = ({ data /* see data tab */ }) => (
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,
-            legend: 'food',
+            legend: data.plot_keys[0],
             legendPosition: 'middle',
             legendOffset: -40,
             truncateTickAt: 0
@@ -126,8 +119,8 @@ const MyResponsiveBar = ({ data /* see data tab */ }) => (
             }
         ]}
         role="application"
-        ariaLabel="Nivo bar chart demo"
-        barAriaLabel={e=>e.id+": "+e.formattedValue+" in country: "+e.indexValue}
+        ariaLabel="conversational analytics bar chart"
+        barAriaLabel={e=>e.id+": "+e.formattedValue+" word: "+e.indexValue}
     ></ResponsiveBar>
 )
 
@@ -154,7 +147,7 @@ const WordFrequencyChart = ({ data }) => {
   
   return (
     <div>
-      <h3>Word Frequency Chart</h3>      
+      <h3>{data.title}</h3>      
         <div style={containerStyle}>
         <MyResponsiveBar data={data}></MyResponsiveBar>
         </div>        

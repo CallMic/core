@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import WordFrequencyChart from '../WordFrequencyChart';
+import { Paper, Button } from "@mui/material";
 
 const UploadFile = () => {
   const [file, setFile] = useState(null);
@@ -50,22 +51,39 @@ const UploadFile = () => {
         var stats = JSON.parse(jsonResponse.stats);
         var chart1 = null;
         var chart2 = null;
+
+        // can change short to long to take longer words. 
+        // long is 5+ characters. 
+        // short is 1-4 characters.
         if (stats.hasOwnProperty("1"))
            chart1 = stats["1"]["top_by_count_long"];
         if (stats.hasOwnProperty("2"))
            chart2 = stats["2"]["top_by_count_long"];
-        console.log("chart1", chart1);
-        console.log("chart2", chart2);    
-        // example chart1: 
-        // arr = [["I",{"count":7,"duration":0.6}],["so",{"count":7,"duration":3.3}],["the",{"count":6,"duration":1.6}],["you",{"count":6,"duration":1.5}],["to",{"count":6,"duration":2.2}],["June",{"count":5,"duration":3.1}],["yes",{"count":4,"duration":1.5}],["14th",{"count":4,"duration":1}],["is",{"count":3,"duration":1}],["just",{"count":3,"duration":1.8}]]
-        // arr2 = arr.map(([word, { count }]) => ({word,count   }));
-        // can change 1 to 2,  and count/duration   short/long
-        const chartData = chart1.map(([word, { count }]) => ({
-          word,
-          count
+        
+        var chart1_data = chart1.map(([word, { count, duration }]) => ({
+          "word" : word,
+          "count": count,
+          "duration" : Math.round(duration),          
+          "countColor": "hsl(116, 70%, 50%)",
+          "durationColor": "hsl(116, 70%, 50%)"
         }));
+
+        var chart2_data = chart1.map(([word, { count, duration }]) => ({
+          "word" : word,
+          "count": count,
+          "duration" : Math.round(duration),
+          "countColor": "hsl(116, 70%, 50%)",
+          "durationColor": "hsl(116, 70%, 50%)"
+        }));
+        
+        const chartData = {
+          "1": chart1_data,
+          "2": chart2_data
+        };
+
         console.log("parsed input to ", chartData);
-        make chartdata good as parameter to the chart obj
+
+        // make good chartdata
         setChartData(chartData);
         console.log('Plotted graph.');
       } else {
@@ -78,132 +96,74 @@ const UploadFile = () => {
     }
   };
 
-  var data = 
+/*   example - for testing
+  var plot_count_data = 
   [
     {
-      "country": "AD",
-      "hot dog": 124,
-      "hot dogColor": "hsl(287, 70%, 50%)",
-      "burger": 63,
-      "burgerColor": "hsl(21, 70%, 50%)",
-      "sandwich": 160,
-      "sandwichColor": "hsl(116, 70%, 50%)",
-      "kebab": 54,
-      "kebabColor": "hsl(161, 70%, 50%)",
-      "fries": 167,
-      "friesColor": "hsl(232, 70%, 50%)",
-      "donut": 142,
-      "donutColor": "hsl(15, 70%, 50%)"
+      "word": "Jojo",
+      "count": 30,
+      "countColor": "hsl(116, 70%, 50%)"
     },
     {
-      "country": "AE",
-      "hot dog": 181,
-      "hot dogColor": "hsl(154, 70%, 50%)",
-      "burger": 27,
-      "burgerColor": "hsl(225, 70%, 50%)",
-      "sandwich": 17,
-      "sandwichColor": "hsl(326, 70%, 50%)",
-      "kebab": 162,
-      "kebabColor": "hsl(23, 70%, 50%)",
-      "fries": 53,
-      "friesColor": "hsl(243, 70%, 50%)",
-      "donut": 173,
-      "donutColor": "hsl(83, 70%, 50%)"
-    },
-    {
-      "country": "AF",
-      "hot dog": 146,
-      "hot dogColor": "hsl(334, 70%, 50%)",
-      "burger": 153,
-      "burgerColor": "hsl(303, 70%, 50%)",
-      "sandwich": 180,
-      "sandwichColor": "hsl(1, 70%, 50%)",
-      "kebab": 107,
-      "kebabColor": "hsl(292, 70%, 50%)",
-      "fries": 7,
-      "friesColor": "hsl(277, 70%, 50%)",
-      "donut": 51,
-      "donutColor": "hsl(226, 70%, 50%)"
-    },
-    {
-      "country": "AG",
-      "hot dog": 138,
-      "hot dogColor": "hsl(238, 70%, 50%)",
-      "burger": 167,
-      "burgerColor": "hsl(342, 70%, 50%)",
-      "sandwich": 150,
-      "sandwichColor": "hsl(213, 70%, 50%)",
-      "kebab": 117,
-      "kebabColor": "hsl(87, 70%, 50%)",
-      "fries": 163,
-      "friesColor": "hsl(149, 70%, 50%)",
-      "donut": 29,
-      "donutColor": "hsl(246, 70%, 50%)"
-    },
-    {
-      "country": "AI",
-      "hot dog": 46,
-      "hot dogColor": "hsl(323, 70%, 50%)",
-      "burger": 73,
-      "burgerColor": "hsl(194, 70%, 50%)",
-      "sandwich": 193,
-      "sandwichColor": "hsl(50, 70%, 50%)",
-      "kebab": 5,
-      "kebabColor": "hsl(248, 70%, 50%)",
-      "fries": 132,
-      "friesColor": "hsl(79, 70%, 50%)",
-      "donut": 14,
-      "donutColor": "hsl(217, 70%, 50%)"
-    },
-    {
-      "country": "AL",
-      "hot dog": 107,
-      "hot dogColor": "hsl(279, 70%, 50%)",
-      "burger": 16,
-      "burgerColor": "hsl(36, 70%, 50%)",
-      "sandwich": 97,
-      "sandwichColor": "hsl(240, 70%, 50%)",
-      "kebab": 92,
-      "kebabColor": "hsl(212, 70%, 50%)",
-      "fries": 135,
-      "friesColor": "hsl(189, 70%, 50%)",
-      "donut": 172,
-      "donutColor": "hsl(70, 70%, 50%)"
-    },
-    {
-      "country": "AM",
-      "hot dog": 177,
-      "hot dogColor": "hsl(59, 70%, 50%)",
-      "burger": 53,
-      "burgerColor": "hsl(269, 70%, 50%)",
-      "sandwich": 160,
-      "sandwichColor": "hsl(138, 70%, 50%)",
-      "kebab": 142,
-      "kebabColor": "hsl(306, 70%, 50%)",
-      "fries": 186,
-      "friesColor": "hsl(239, 70%, 50%)",
-      "donut": 34,
-      "donutColor": "hsl(237, 70%, 50%)"
+      "word": "Jojos",
+      "count": 160,
+      "countColor": "hsl(116, 70%, 50%)"
     }
   ];
-  
+
+  var plot_duration_data = 
+  [
+    {
+      "word": "Jojo durrrr",
+      "duration": 190,
+      "durationColor": "hsl(116, 70%, 50%)"
+    },
+    {
+      "word": "Jojos dur",
+      "duration": 160,
+      "durationColor": "hsl(116, 70%, 50%)"
+    }
+  ];
+
+  var plot_count_keys = ['count'];
+  var plot_duration_keys = ['duration'];
+*/
+
   return (
     <div>
         <div>Upload a call audio file to receive instant conversational report.</div>
       <form>
+        <br></br>
+        <Paper
+            elevation={9}
+            sx={{
+              width: "300px",
+              padding: (theme) => theme.spacing(3, 5),
+            }}
+          >
         <div>
           <label>Email:</label>
+          <br></br>
           <input type="text" value={email} onChange={handleEmailChange} />
+          <br></br><br></br>
         </div>
         <div>
-          <label>File (WAV only):</label>
+          <label>File (WAV only):</label><br></br>
           <input type="file" onChange={handleFileChange} />
         </div>
-        <button type="button" onClick={handleUpload} disabled={loading}>
+        </Paper>
+        <br></br>
+        <Button variant="contained" type="button" onClick={handleUpload} disabled={loading}>
           {loading ? 'Submitting...' : 'Submit'}
-        </button>
-      </form>      
-      {chartData && <WordFrequencyChart data={data}></WordFrequencyChart>}
+        </Button>
+        </form>              
+      {chartData && /* show only if we are after Submission ended and result received */
+        <div>
+            <WordFrequencyChart data={{ title: "Speaker 1 - Word Counts", plot_data: chartData["1"], plot_keys: ["count"] }}></WordFrequencyChart>
+            <WordFrequencyChart data={{ title: "Speaker 1 - Total Duration of Word (sec)", plot_data: chartData["1"], plot_keys: ["duration"] }}></WordFrequencyChart>
+            <WordFrequencyChart data={{ title: "Speaker 2 - Word Counts", plot_data: chartData["2"], plot_keys: ["count"] }}></WordFrequencyChart>
+            <WordFrequencyChart data={{ title: "Speaker 2 - Total Duration of Word (sec)", plot_data: chartData["2"], plot_keys: ["duration"] }}></WordFrequencyChart>
+        </div>}
     </div>
   );
 };

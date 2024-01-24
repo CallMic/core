@@ -1,4 +1,4 @@
-# CallMic conversational analytics webapp
+# CallMic - conversational analytics
 
 ## Introduction
 
@@ -10,7 +10,7 @@ The code splits the file to two speakers based on their voice. It provides analy
 
 ### This project makes use of the following cloud tools:
 
-- Google Cloud Run - to run server in scalable Kubernetes containers, pay-as-you-go model
+- Google Cloud Run (similar to serverless functions) - to run "server"(less) in scalable Kubernetes containers, pay-as-you-go model
 
 - Google Cloud Storage - Object storage to store the audio files and analysis results
 
@@ -21,19 +21,37 @@ The code splits the file to two speakers based on their voice. It provides analy
 This is a simple & standard architecture:
 
 ### ReactJS client:
-- utilizing Material-UI for the UI components (Google-like UI) and Nivo Charts (supports server-side rendering) for charting the results.
+
+- Material-UI for the UI components (Google-like UI) 
+- Nivo Charts (supports server-side rendering) - for charting the results
+
 ### NodeJS server:
-- Audio files and results are saved to object storage (on GCP)
+
 - Simple REST API for uploading the file and receiving the results
+- Steps in the rest API:
+  1. Upload the audio file to object storage (on GCP)
+  2. Call Google Speech-to-Text API with the right parameters, taking the file from the storage bucket.
+  3. Analyze the results and return the analysis results in the response.
+
 
 ## TODO
 
-- Add a summary of the call using the OpenAI ChatGPT API or even Google AI Summarization (also based on ChatGPT)
-- Add more complex algorithm flow to analyze the call text - can think of many ideas
+- Add a summary of the call using the OpenAI ChatGPT API or even Google AI Summarization (also based on ChatGPT).
+- Add more complex algorithm flow to analyze the call text - can think of many ideas.
+- Have any ideas of your own? Feel free to submit a pull request.
 
 ## Try it online now
 
-https://callmic.com (currently offline, ping me to get it up)
+https://callmic.com (currently offline, ping me to get it online)
+
+## Some examples
+
+Bill Gates interviewed Sam Altman on his podcast - let's see which words they used.
+
+
+
+Episode of Bill Gates interviewing Sam Altman ("source" for the visualization):
+https://podcasts.google.com/feed/aHR0cHM6Ly9mZWVkLnVuY29uZnVzZW1lLmNvbS8/episode/cHJ4XzQzODNfYTk2YjY5NTctMmNlZS00MThmLWE3M2MtZTFiZGQ4NDVhM2Ux?sa=X&ved=0CAQQ8qgGahgKEwig7saP6PWDAxUAAAAAHQAAAAAQxxA
 
 ## Installation & Setup
 
@@ -91,4 +109,6 @@ npm run build
 
 #### Type this command in the /monolith directory:
 
+```bash
 npm start
+```

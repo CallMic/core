@@ -23,10 +23,10 @@ async function speech_to_text(gcsUri)
     // Creates a client for the google API 
     const client = new speech.SpeechClient();
     
-    // for mp3
+    // for wav
     const config = {      
       encoding: 'LINEAR16',      
-      sampleRateHertz: 8000,      
+      //sampleRateHertz: 8000,  // will find it if not specified. 
       languageCode: 'en-US',
       enableSpeakerDiarization: true, // diarization means it will split it
           // to two(or more) channels - separate between speakers.
@@ -34,7 +34,19 @@ async function speech_to_text(gcsUri)
       maxSpeakerCount: 2,      
       model: 'video' // this is for "long" input. seems to work well      
     };
-
+/*
+     // for mp3
+     const config = {      
+      encoding: 'MP3',      
+      //sampleRateHertz: 8000,      
+      languageCode: 'en-US',
+      enableSpeakerDiarization: true, // diarization means it will split it
+          // to two(or more) channels - separate between speakers.
+      minSpeakerCount: 2,
+      maxSpeakerCount: 2,      
+      model: 'video' // this is for "long" input. seems to work well      
+    };
+*/
     const audio = {
       uri: gcsUri,
     };
