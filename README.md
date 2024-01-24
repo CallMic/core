@@ -6,7 +6,7 @@ CallMic is a website in which you can upload a voice file and get conversational
 
 The code splits the file to two speakers based on their voice. It provides analytics for both of the speakers. Utilizes tools from GCP - Google Cloud Platform.
 
-![ui](https://github.com/CallMic/CallMic-Proj/assets/15046011/df1753a1-d6ca-458c-a83a-ac711d9d70f7)
+![ui](https://github.com/CallMic/CallMic-Proj/assets/15046011/4a03f757-2b50-4dcd-b20a-a66394fcad50)
 
 ## Google Cloud Tools in Use:
 
@@ -39,6 +39,13 @@ This is a simple & standard architecture:
 
 Using an example phone conversation, let's see the results.
 
+Total word counts for a speaker (top 10 words):
+
+![word-counts](https://github.com/CallMic/CallMic-Proj/assets/15046011/7eb8875f-a936-4a9a-8b23-dc039c0ab471)
+
+Total duration of words for speaker (top 10 words):
+
+![word-duration](https://github.com/CallMic/CallMic-Proj/assets/15046011/6fe272e4-e658-4fc0-8739-6452fb8b714e)
 
 ## TODO
 
